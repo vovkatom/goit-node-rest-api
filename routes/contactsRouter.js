@@ -1,22 +1,28 @@
 import express from "express";
+
+import moviesControllers from "../controllers/contactsControllers.js";
+
 import {
-  getAllContacts,
-  getOneContact,
-  deleteContact,
-  createContact,
-  updateContact,
-} from "../controllers/contactsControllers.js";
+    movieAddSchema,
+    movieUpdateSchema,
+} from "../schemas/contactsSchemas.js";
 
-const contactsRouter = express.Router();
+import validateBody from "../decorators/validateBody.js";
 
-contactsRouter.get("/", getAllContacts);
+const moviesRouter = express.Router();
 
-contactsRouter.get("/:id", getOneContact);
+moviesRouter.get("/", moviesControllers.getAll);
 
-contactsRouter.delete("/:id", deleteContact);
+moviesRouter.get("/:id", moviesControllers.getById);
 
-contactsRouter.post("/", createContact);
+moviesRouter.post("/", validateBody(movieAddSchema), moviesControllers.add);
 
-contactsRouter.put("/:id", updateContact);
+moviesRouter.put(
+    "/:id",
+    validateBody(movieUpdateSchema),
+    moviesControllers.updateById
+);
 
-export default contactsRouter;
+moviesRouter.delete("/:id", moviesControllers.deleteById);
+
+export default moviesRouter;

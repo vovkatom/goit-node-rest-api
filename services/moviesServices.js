@@ -2,55 +2,56 @@ import fs from "fs/promises";
 import path from "path";
 import { nanoid } from "nanoid";
 
-const moviesPath = path.resolve("db", "movies.json");
+const contactsPath = path.resolve("db", "contacts.json");
 
-const updateMovies = movies => fs.writeFile(moviesPath, JSON.stringify(movies, null, 2));
+const updateListContacts = (contacts) =>
+    fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
 
-export const getAllMovies = async () => {
-    const data = await fs.readFile(moviesPath);
+export const getListContacts = async () => {
+    const data = await fs.readFile(contactsPath);
 
     return JSON.parse(data);
-}
+};
 
-export const getMovieById = async (id) => {
-    const movies = await getAllMovies();
-    const result = movies.find(item => item.id === id);
+export const getContactById = async (id) => {
+    const contacts = await getListContacts();
+    const result = contacts.find((item) => item.id === id);
 
     return result || null;
-}
+};
 
-export const addMovies = async (data) => {
-    const movies = await getAllMovies();
-    const newMovie = {
+export const addContact = async (data) => {
+    const contacts = await getListContacts();
+    const newContact = {
         id: nanoid(),
         ...data,
     };
-    movies.push(newMovie);
-    await updateMovies(movies);
+    contacts.push(newContact);
+    await updateListContacts(contacts);
 
-    return newMovie;
-}
+    return newContact;
+};
 
-export const updateMovieById = async (id, data) => {
-    const movies = await getAllMovies();
-    const index = movies.findIndex(item => item.id === id);
+export const updateContactById = async (id, data) => {
+    const contacts = await getListContacts();
+    const index = contacts.findIndex((item) => item.id === id);
     if (index === -1) {
         return null;
     }
-    movies[index] = { ...movies[index], ...data };
-    await updateMovies(movies);
+    contacts[index] = { ...contacts[index], ...data };
+    await updateListContacts(contacts);
 
-    return movies[index];
-}
+    return contacts[index];
+};
 
-export const deleteMovieById = async (id) => {
-    const movies = await getAllMovies();
-    const index = movies.findIndex(item => item.id === id);
+export const deleteContactById = async (id) => {
+    const contacts = await getListContacts();
+    const index = contacts.findIndex((item) => item.id === id);
     if (index === -1) {
         return null;
     }
-    const [result] = movies.splice(index, 1);
-    await updateMovies(movies);
+    const [result] = contacts.splice(index, 1);
+    await updateListContacts(contacts);
 
     return result;
-}
+};

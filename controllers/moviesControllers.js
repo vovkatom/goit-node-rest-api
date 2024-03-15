@@ -1,56 +1,55 @@
-import * as moviesServices from "../services/moviesServices.js";
+import * as contactsServices from "../services/moviesServices.js";
 
 import ctrlWrapper from "../decorators/ctrlWrapper.js";
 
 import HttpError from "../helpers/HttpError.js";
 
-import { movieAddSchema, movieUpdateSchema } from "../schemas/moviesSchemas.js";
-
 const getAll = async (req, res) => {
-    const result = await moviesServices.getAllMovies();
-
+    const result = await contactsServices.getListContacts();
     res.json(result);
-}
+};
 
 const getById = async (req, res) => {
     const { id } = req.params;
-    const result = await moviesServices.getMovieById(id);
+    const result = await contactsServices.getContactById(id);
     if (!result) {
-        throw HttpError(404, `Movie with id=${id} not found`);
+        throw HttpError(404, `Not found`);
     }
 
     res.json(result);
-}
+};
 
 const add = async (req, res) => {
-    const result = await moviesServices.addMovies(req.body);
-
+    const result = await contactsServices.addContact(req.body);
     res.status(201).json(result);
-}
+};
 
 const updateById = async (req, res) => {
     const { id } = req.params;
-    const result = await moviesServices.updateMovieById(id, req.body);
+    const result = await contactsServices.updateContactById(id, req.body);
+    const emptyBody = Object.keys(req.body).length === 0;
+
+    if (emptyBody) throw HttpError(400, "Body must have at least one field");
+
     if (!result) {
-        throw HttpError(404, `Movie with id=${id} not found`);
+        throw HttpError(404, `Not found`);
     }
 
     res.json(result);
-}
+};
 
 const deleteById = async (req, res) => {
     const { id } = req.params;
-    const result = await moviesServices.deleteMovieById(id);
+    const result = await contactsServices.deleteContactById(id);
     if (!result) {
-        throw HttpError(404, `Movie with id=${id} not found`);
+        throw HttpError(404, `Not found`);
     }
 
-    // res.status(204).send();
-
-    res.json({
-        message: "Delete success"
-    });
-}
+    // res.json({
+    //     message: "Delete success",
+    // });
+    res.json(result);
+};
 
 export default {
     getAll: ctrlWrapper(getAll),
@@ -58,4 +57,4 @@ export default {
     add: ctrlWrapper(add),
     updateById: ctrlWrapper(updateById),
     deleteById: ctrlWrapper(deleteById),
-}
+};

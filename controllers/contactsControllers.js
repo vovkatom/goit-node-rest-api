@@ -9,49 +9,49 @@ const getAll = async (req, res) => {
     res.json(result);
 };
 
-const getById = async (req, res) => {
-    const { id } = req.params;
-    const result = await contactsServices.getContactById(id);
-    if (!result) {
-        throw HttpError(404, `Not found`);
-    }
+// const getById = async (req, res) => {
+//     const { id } = req.params;
+//     const result = await contactsServices.getContactById(id);
+//     if (!result) {
+//         throw HttpError(404, `Not found`);
+//     }
 
-    res.json(result);
-};
+//     res.json(result);
+// };
 
-const add = async (req, res) => {
-    const result = await contactsServices.addContact(req.body);
-    res.status(201).json(result);
-};
+// const add = async (req, res) => {
+//     const result = await contactsServices.addContact(req.body);
+//     res.status(201).json(result);
+// };
 
-const updateById = async (req, res) => {
-    const { id } = req.params;
-    const result = await contactsServices.updateContactById(id, req.body);
-    const emptyBody = Object.keys(req.body).length === 0;
+// const updateById = async (req, res) => {
+//     const { id } = req.params;
+//     const result = await contactsServices.updateContactById(id, req.body);
+//     const emptyBody = Object.keys(req.body).length === 0;
 
-    if (emptyBody) throw HttpError(400, "Body must have at least one field");
+//     if (emptyBody) throw HttpError(400, "Body must have at least one field");
 
-    if (!result) {
-        throw HttpError(404, `Not found`);
-    }
+//     if (!result) {
+//         throw HttpError(404, `Not found`);
+//     }
 
-    res.json(result);
-};
+//     res.json(result);
+// };
 
-const deleteById = async (req, res) => {
-    const { id } = req.params;
-    const result = await contactsServices.deleteContactById(id);
-    if (!result) {
-        throw HttpError(404, `Not found`);
-    }
+// const deleteById = async (req, res) => {
+//     const { id } = req.params;
+//     const result = await contactsServices.deleteContactById(id);
+//     if (!result) {
+//         throw HttpError(404, `Not found`);
+//     }
 
-    res.json(result);
-};
+//     res.json(result);
+// };
 
 export default {
     getAll: ctrlWrapper(getAll),
-    getById: ctrlWrapper(getById),
-    add: ctrlWrapper(add),
-    updateById: ctrlWrapper(updateById),
-    deleteById: ctrlWrapper(deleteById),
+    // getById: ctrlWrapper(getById),
+    // add: ctrlWrapper(add),
+    // updateById: ctrlWrapper(updateById),
+    // deleteById: ctrlWrapper(deleteById),
 };

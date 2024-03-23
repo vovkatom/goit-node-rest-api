@@ -1,6 +1,6 @@
-import Contact from "../models/contact.js";
+// import Contact from "../models/contact.js";
 
-export const getAllMovies = () => Contact.find();
+// export const getAllMovies = () => Contact.find();
 
 
 // import fs from "fs/promises";

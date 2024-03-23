@@ -30,6 +30,12 @@ contactsRouter.put(
     contactsControllers.updateById
 );
 
-contactsRouter.delete("/:id",isValidId, contactsControllers.deleteById);
+contactsRouter.delete("/:id", isValidId, contactsControllers.deleteById);
+
+contactsRouter.patch(
+    "/:id/favorite",
+    isValidId,
+    contactsControllers.updateStatusContact
+);
 
 export default contactsRouter;

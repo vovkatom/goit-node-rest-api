@@ -48,16 +48,15 @@ const deleteById = async (req, res) => {
     res.json(result);
 };
 
-const updateStatusContact = async (req, res, next) => {
+export const updateStatusContact = async (req, res) => {
     const { id } = req.params;
-    const result = await contactsServices.updateStatus(id, req.body);
-    const emptyBody = Object.keys(req.body).length === 0;
-
-    if (!result) {
-        throw HttpError(404, `Not found`);
+    const favoredContact = await contactsServices.updateStatus(id, req.body, {
+        new: true,
+    });
+    if (!favoredContact) {
+        throw HttpError(404);
     }
-
-    res.json(result);
+    res.status(200).json(favoredContact);
 };
 
 export default {

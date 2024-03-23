@@ -1,60 +1,16 @@
 //import Contact from "../models/Ccontact.js";
 import Contact from "../models/contact.js";
 
-// export const getAllMovies = () => Contact.find();
-
-
-// import fs from "fs/promises";
-// import path from "path";
-// import { nanoid } from "nanoid";
-// import Contact from './../controllers/models/contact';
-
-// const contactsPath = path.resolve("db", "contacts.json");
-
-// const updateListContacts = (contacts) =>
-//     fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
-
 export const getListContacts = () => Contact.find();
 
-// export const getContactById = async (id) => {
-//     const contacts = await getListContacts();
-//     const result = contacts.find((item) => item.id === id);
+export const addContact = (data) => Contact.create(data);
 
-//     return result || null;
-// };
+export const getContactById = async (id) => {
+    const data = await Contact.findById(id);
+    return data;
+};
 
-// export const addContact = async (data) => {
-//     const contacts = await getListContacts();
-//     const newContact = {
-//         id: nanoid(),
-//         ...data,
-//     };
-//     contacts.push(newContact);
-//     await updateListContacts(contacts);
+export const updateContactById = (id, data) =>
+    Contact.findByIdAndUpdate(id, data);
 
-//     return newContact;
-// };
-
-// export const updateContactById = async (id, data) => {
-//     const contacts = await getListContacts();
-//     const index = contacts.findIndex((item) => item.id === id);
-//     if (index === -1) {
-//         return null;
-//     }
-//     contacts[index] = { ...contacts[index], ...data };
-//     await updateListContacts(contacts);
-
-//     return contacts[index];
-// };
-
-// export const deleteContactById = async (id) => {
-//     const contacts = await getListContacts();
-//     const index = contacts.findIndex((item) => item.id === id);
-//     if (index === -1) {
-//         return null;
-//     }
-//     const [result] = contacts.splice(index, 1);
-//     await updateListContacts(contacts);
-
-//     return result;
-// };
+export const deleteContactById = (id) => Contact.findByIdAndDelete(id);

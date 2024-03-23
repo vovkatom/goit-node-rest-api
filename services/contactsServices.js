@@ -1,4 +1,5 @@
-// import Contact from "../models/contact.js";
+//import Contact from "../models/Ccontact.js";
+import Contact from "../models/contact.js";
 
 // export const getAllMovies = () => Contact.find();
 
@@ -13,11 +14,7 @@
 // const updateListContacts = (contacts) =>
 //     fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
 
-// export const getListContacts = async () => {
-//     const data = await fs.readFile(contactsPath);
-
-//     return JSON.parse(data);
-// };
+export const getListContacts = () => Contact.find();
 
 // export const getContactById = async (id) => {
 //     const contacts = await getListContacts();

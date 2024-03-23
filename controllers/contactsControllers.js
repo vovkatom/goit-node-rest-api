@@ -48,10 +48,23 @@ const deleteById = async (req, res) => {
     res.json(result);
 };
 
+const updateStatusContact = async (req, res, next) => {
+    const { id } = req.params;
+    const result = await contactsServices.updateStatus(id, req.body);
+    const emptyBody = Object.keys(req.body).length === 0;
+
+    if (!result) {
+        throw HttpError(404, `Not found`);
+    }
+
+    res.json(result);
+};
+
 export default {
     getAll: ctrlWrapper(getAll),
     getById: ctrlWrapper(getById),
     add: ctrlWrapper(add),
     updateById: ctrlWrapper(updateById),
     deleteById: ctrlWrapper(deleteById),
+    updateStatusContact: ctrlWrapper(updateStatusContact),
 };

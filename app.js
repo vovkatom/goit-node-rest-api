@@ -29,13 +29,10 @@ mongoose
     .connect(DB_HOST)
     .then(() => {
         app.listen(PORT, () => {
-            console.log(`Server is running. Use our API on port: ${PORT}`);
-            console.log("Database connection successful");
+            console.log(`Server is running. Use our API on port: ${PORT} end Database connection successful`);
         });
     })
     .catch((error) => {
         process.exit(1);
         console.error(error.message);
     });
-
-    //new

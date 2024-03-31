@@ -1,79 +1,99 @@
-import * as contactsServices from "../services/contactsServices.js";
+import HttpError from "../helpers/HttpError.js";
 
 import ctrlWrapper from "../decorators/ctrlWrapper.js";
 
-import HttpError from "../helpers/HttpError.js";
+import * as contactsService from "../services/contactsServices.js";
 
-const getAll = async (req, res) => {
-    const {_id: owner} = req.user;
-    const {page = 1, limit = 10} = req.query;
-    const skip = (page - 1) * limit;
-    const result = await contactsServices.getListContacts({owner}, {skip, limit});
-    const total = await contactsServices.countContacts({owner});
-
-    res.json({
-        result,
-        total,
-    });
-};
-
-const getById = async (req, res) => {
-    const { id } = req.params;
-    const result = await contactsServices.getContactById(id);
-    if (!result) {
-        throw HttpError(404, `Not found`);
-    }
-
-    res.json(result);
-};
-
-const add = async (req, res) => {
+export const getAllContacts = async (req, res) => {
     const { _id: owner } = req.user;
-    const result = await contactsServices.addContact({ ...req.body, owner });
+    const { page = 1, limit = 20, favorite } = req.query;
+    const skip = (page - 1) * limit;
 
-    res.status(201).json(result);
+    const filter = favorite ? { $and: [{ owner }, { favorite }] } : { owner };
+    const contacts = await contactsService.listContacts(filter, {
+        skip,
+        limit,
+    });
+
+    if (!contacts) throw HttpError(404);
+    res.json(contacts);
 };
 
-const updateById = async (req, res) => {
+export const getOneContact = async (req, res) => {
     const { id } = req.params;
-    const result = await contactsServices.updateContactById(id, req.body);
-    const emptyBody = Object.keys(req.body).length === 0;
+    const { _id: owner } = req.user;
+    const contact = await contactsService.getContactById({ _id: id, owner });
+    if (!contact) throw HttpError(404);
+    res.json(contact);
+};
 
-    if (emptyBody) throw HttpError(400, "Body must have at least one field");
-
-    if (!result) {
-        throw HttpError(404, `Not found`);
-    }
-
+export const deleteContact = async (req, res) => {
+    const { id } = req.params;
+    const { _id: owner } = req.user;
+    const result = await contactsService.removeContact({ _id: id, owner });
+    if (!result) throw HttpError(404);
     res.json(result);
 };
 
-const deleteById = async (req, res) => {
-    const { id } = req.params;
-    const result = await contactsServices.deleteContactById(id);
-    if (!result) {
-        throw HttpError(404, `Not found`);
+export const createContact = async (req, res) => {
+    const { _id: owner } = req.user;
+    const { name, email, phone } = req.body;
+
+    const existingContact = await contactsService.getContactByDetails({
+        name,
+        email,
+        phone,
+        owner,
+    });
+
+    if (existingContact) {
+        return res.status(400).json({ message: "Contact already exists" });
     }
 
-    res.json(result);
+    const newContact = await contactsService.addContact({ ...req.body, owner });
+    if (!newContact) {
+        throw HttpError(400);
+    }
+    res.status(201).json(newContact);
+};
+
+export const updateContact = async (req, res) => {
+    const { id } = req.params;
+    const { _id: owner } = req.user;
+    const updatedContact = await contactsService.updateById(
+        { _id: id, owner },
+        req.body,
+        {
+            new: true,
+        }
+    );
+    if (!updatedContact) {
+        throw HttpError(404);
+    }
+    res.status(200).json(updatedContact);
 };
 
 export const updateStatusContact = async (req, res) => {
     const { id } = req.params;
-    const favoredContact = await contactsServices.updateStatus(id, req.body, {
-        new: true,
-    });
+    const { _id: owner } = req.user;
+    const favoredContact = await contactsService.updateStatusById(
+        { _id: id, owner },
+        req.body,
+        {
+            new: true,
+        }
+    );
     if (!favoredContact) {
-        throw HttpError(404);
+        throw HttpError(404, `contact ${id} Not found`);
     }
     res.status(200).json(favoredContact);
 };
 
-export default {
-    getAll: ctrlWrapper(getAll),
-    getById: ctrlWrapper(getById),
-    add: ctrlWrapper(add),
-    updateById: ctrlWrapper(updateById),
-    deleteById: ctrlWrapper(deleteById),
+export const ctrl = {
+    getAllContacts: ctrlWrapper(getAllContacts),
+    getOneContact: ctrlWrapper(getOneContact),
+    deleteContact: ctrlWrapper(deleteContact),
+    createContact: ctrlWrapper(createContact),
+    updateContact: ctrlWrapper(updateContact),
     updateStatusContact: ctrlWrapper(updateStatusContact),
 };

@@ -12,7 +12,11 @@ import validateBody from "../decorators/validateBody.js";
 
 import isValidId from "../middlewares/isValidid.js";
 
+import authenticate from "../middlewares/authenticate.js";
+
 const contactsRouter = express.Router();
+
+contactsRouter.use(authenticate);
 
 contactsRouter.get("/", contactsControllers.getAll);
 

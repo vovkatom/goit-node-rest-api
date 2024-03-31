@@ -1,77 +1,84 @@
-import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-
-import * as authServices from "../services/authServices.js";
-
-import ctrlWrapper from "../decorators/ctrlWrapper.js";
 
 import HttpError from "../helpers/HttpError.js";
 
+import ctrlWrapper from "../decorators/ctrlWrapper.js";
+
+import * as authServices from "../services/authServices.js";
+
 const { JWT_SECRET } = process.env;
 
-const signup = async (req, res) => {
-    const { email, password } = req.body;
+const register = async (req, res) => {
+    const { email } = req.body;
     const user = await authServices.findUser({ email });
     if (user) {
-        throw HttpError(409, "Email already in use");
+        throw HttpError(409, "Email in use");
     }
 
-    const hashPassword = await bcrypt.hash(password, 10);
-
-    const newUser = await authServices.signup({ ...req.body, password: hashPassword });
-
+    const newUser = await authServices.register(req.body);
+    if (!newUser) {
+        throw HttpError(404, "Not found");
+    }
     res.status(201).json({
-        username: newUser.username,
-        email: newUser.email,
-    })
-}
+        user: {
+            email: newUser.email,
+            subscription: newUser.subscription,
+        },
+    });
+};
 
-const singin = async (req, res) => {
+const login = async (req, res) => {
     const { email, password } = req.body;
+
     const user = await authServices.findUser({ email });
     if (!user) {
-        throw HttpError(401, "Email or password invalid");
-    }
-    const passwordCompare = await bcrypt.compare(password, user.password);
-    if (!passwordCompare) {
-        throw HttpError(401, "Email or password invalid");
+        throw HttpError(401, "Email or password is wrong");
     }
 
-    const { _id: id } = user;
+    const comparePassword = await authServices.validatePassword(
+        password,
+        user.password
+    );
+    if (!comparePassword) {
+        throw HttpError(401, "Email or password is wrong");
+    }
 
-    const payload = {
-        id
-    };
+    const payload = { id: user._id };
 
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "23h" });
-    await authServices.updateUser({ _id: id }, { token });
-
+    await authServices.updateUser(user._id, { token });
     res.json({
         token,
-    })
-}
+        user: {
+            email: user.email,
+            subscription: user.subscription,
+        },
+    });
+};
 
 const getCurrent = async (req, res) => {
-    const { username, email } = req.user;
+    const { email, subscription } = req.user;
+    res.json({ email, subscription });
+};
 
-    res.json({
-        username,
-        email,
-    })
-}
-
-const signout = async (req, res) => {
+const logout = async (req, res) => {
     const { _id } = req.user;
     await authServices.updateUser({ _id }, { token: "" });
+    res.status(204).send();
+};
 
-    res.json({
-        message: "Signout success"
-    })
-}
+const updateSub = async (req, res) => {
+    const { _id, subscription } = req.body;
+    await authServices.updateSubscription(_id, { subscription });
+    res.status(200).json({
+        message: `Subscription changed to ${subscription}`,
+    });
+};
 
 export default {
-    signup: ctrlWrapper(signup),
-    signin: ctrlWrapper(singin),
+    login: ctrlWrapper(login),
+    logout: ctrlWrapper(logout),
+    register: ctrlWrapper(register),
     getCurrent: ctrlWrapper(getCurrent),
-    signout: ctrlWrapper(signout),
-}
+    updateSub: ctrlWrapper(updateSub),
+};

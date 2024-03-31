@@ -5,8 +5,16 @@ import ctrlWrapper from "../decorators/ctrlWrapper.js";
 import HttpError from "../helpers/HttpError.js";
 
 const getAll = async (req, res) => {
-    const result = await contactsServices.getListContacts();
-    res.json(result);
+    const {_id: owner} = req.user;
+    const {page = 1, limit = 10} = req.query;
+    const skip = (page - 1) * limit;
+    const result = await contactsServices.getListContacts({owner}, {skip, limit});
+    const total = await contactsServices.countContacts({owner});
+
+    res.json({
+        result,
+        total,
+    });
 };
 
 const getById = async (req, res) => {
@@ -20,7 +28,9 @@ const getById = async (req, res) => {
 };
 
 const add = async (req, res) => {
-    const result = await contactsServices.addContact(req.body);
+    const { _id: owner } = req.user;
+    const result = await contactsServices.addContact({ ...req.body, owner });
+
     res.status(201).json(result);
 };
 

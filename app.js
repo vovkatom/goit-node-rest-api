@@ -40,3 +40,5 @@ mongoose
         process.exit(1);
         console.error(error.message);
     });
+
+    //hw05-avatars

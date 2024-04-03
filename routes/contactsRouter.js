@@ -1,10 +1,13 @@
 import express from "express";
 
 import { ctrl } from "../controllers/contactsControllers.js";
+
 import { schemas } from "../schemas/contactsSchemas.js";
 
 import authenticate from "../middlewares/authenticate.js";
+
 import validateBody from "../decorators/validateBody.js";
+
 import isValidId from "../middlewares/isValidId.js";
 
 const contactsRouter = express.Router();

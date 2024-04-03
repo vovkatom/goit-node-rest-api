@@ -8,6 +8,8 @@ import authenticate from "../middlewares/authenticate.js";
 
 import authControllers from "../controllers/authControllers.js";
 
+import upload from "../middlewares/upload.js";
+
 const { register, login, logout, getCurrent, updateSub } = authControllers;
 
 const { subSchema, registerSchema, loginSchema } = authSchemas;
@@ -16,7 +18,9 @@ const authRouter = express.Router();
 
 authRouter.patch("/", authenticate, validateBody(subSchema), updateSub);
 
-authRouter.post("/register", validateBody(registerSchema), register);
+// upload.fields([{name: "poster", maxCount: 1}])
+//upload.array("avatar", 8);
+authRouter.post("/register", upload.single("avatar"), validateBody(registerSchema), register);
 
 authRouter.post("/login", validateBody(loginSchema), login);
 

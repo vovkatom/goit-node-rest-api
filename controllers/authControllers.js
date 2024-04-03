@@ -11,25 +11,26 @@ import HttpError from "../helpers/HttpError.js";
 import ctrlWrapper from "../decorators/ctrlWrapper.js";
 
 import * as authServices from "../services/authServices.js";
-import { token } from "morgan";
 
-const { JWT_SECRET } = process.env;
+import gravatar from "gravatar";
 
 const posterPath = path.resolve("public", "avatars");
 
 const register = async (req, res) => {
-    const { path: oldPath, filename } = req.file;
-    const newPath = path.join(posterPath, filename);
+    // const { path: oldPath, filename } = req.file;
+    // const newPath = path.join(posterPath, filename);
     
     const { email, password } = req.body;
     const user = await authServices.findUser({ email });
     if (user) {
-        await fs.unlink(req.file.path);
+        // await fs.unlink(req.file.path);
         throw HttpError(409, "Email already in use");
     }
 
-    await fs.rename(oldPath, newPath);
-    const avatarURL = path.join("public", "avatars", filename);
+    // await fs.rename(oldPath, newPath);
+    //const avatarURL = path.join("public", "avatars", filename);
+    
+    const avatarURL = await gravatar.url(email, {s: '200', r: 'x', d: 'retro'}, true)
 
     const hashPassword = await bcrypt.hash(password, 10);
 

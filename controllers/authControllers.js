@@ -16,25 +16,28 @@ import gravatar from "gravatar";
 
 const posterPath = path.resolve("public", "avatars");
 
+const { JWT_SECRET } = process.env;
+
 const register = async (req, res) => {
-    // const { path: oldPath, filename } = req.file;
-    // const newPath = path.join(posterPath, filename);
-    
     const { email, password } = req.body;
     const user = await authServices.findUser({ email });
     if (user) {
-        // await fs.unlink(req.file.path);
         throw HttpError(409, "Email already in use");
     }
 
-    // await fs.rename(oldPath, newPath);
-    //const avatarURL = path.join("public", "avatars", filename);
-    
-    const avatarURL = await gravatar.url(email, {s: '200', r: 'x', d: 'retro'}, true)
+    const avatarURL = await gravatar.url(
+        email,
+        { s: "200", r: "x", d: "retro" },
+        true
+    );
 
     const hashPassword = await bcrypt.hash(password, 10);
 
-    const newUser = await authServices.register({ ...req.body, avatarURL, password: hashPassword });
+    const newUser = await authServices.register({
+        ...req.body,
+        avatarURL,
+        password: hashPassword,
+    });
 
     res.status(201).json({
         user: {
@@ -42,7 +45,7 @@ const register = async (req, res) => {
             subscription: newUser.subscription,
             avatarURL: newUser.avatarURL,
         },
-    })
+    });
 };
 
 const login = async (req, res) => {
@@ -75,8 +78,8 @@ const login = async (req, res) => {
 };
 
 const getCurrent = async (req, res) => {
-    const { email, subscription } = req.user;
-    res.json({ email, subscription });
+    const { email, subscription, _id } = req.user;
+    res.json({ email, subscription, _id });
 };
 
 const logout = async (req, res) => {
@@ -86,11 +89,27 @@ const logout = async (req, res) => {
 };
 
 const updateSub = async (req, res) => {
-    const { _id, subscription } = req.body;
+    const { _id } = req.user;
+    const { subscription } = req.body;
+
     await authServices.updateSubscription(_id, { subscription });
     res.status(200).json({
         message: `Subscription changed to ${subscription}`,
     });
+};
+
+const udateAvt = async (req, res) => {
+    const { path: oldPath, filename } = req.file;
+    const newPath = path.join(posterPath, filename);
+
+    const { _id } = req.user;
+
+    await fs.rename(oldPath, newPath);
+    const avatarURL = path.join("public", "avatars", filename);
+
+    const newUser = await authServices.updateAvatar(_id, { avatarURL });
+
+    res.status(201).json({ avatarURL: newUser.avatarURL });
 };
 
 export default {
@@ -99,4 +118,5 @@ export default {
     register: ctrlWrapper(register),
     getCurrent: ctrlWrapper(getCurrent),
     updateSub: ctrlWrapper(updateSub),
+    udateAvt: ctrlWrapper(udateAvt),
 };

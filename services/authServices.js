@@ -11,5 +11,6 @@ export const validatePassword = (password, hashPassword) =>
 
 export const updateUser = (filter, data) => User.findOneAndUpdate(filter, data);
 
-export const updateSubscription = (filter, data) =>
-    User.findOneAndUpdate(filter, data);
+export const updateSubscription = (filter, data) => User.findOneAndUpdate(filter, data);
+
+export const updateAvatar = (filter, data) => User.findOneAndUpdate(filter, data);

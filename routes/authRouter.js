@@ -18,14 +18,17 @@ const authRouter = express.Router();
 
 authRouter.patch("/", authenticate, validateBody(subSchema), updateSub);
 
-// upload.fields([{name: "poster", maxCount: 1}])
-//upload.array("avatar", 8);
-authRouter.post("/register", upload.single("avatar"), validateBody(registerSchema), register);
+authRouter.post("/register", validateBody(registerSchema), register);
 
 authRouter.post("/login", validateBody(loginSchema), login);
 
 authRouter.get("/current", authenticate, getCurrent);
 
 authRouter.post("/logout", authenticate, logout);
+
+// upload.fields([{name: "poster", maxCount: 1}])
+//upload.array("avatar", 8);
+// authRouter.post("/register", upload.single("avatar"), validateBody(registerSchema), register);
+authRouter.patch("/avatars", authenticate, validateBody(subSchema), updateSub);
 
 export default authRouter;

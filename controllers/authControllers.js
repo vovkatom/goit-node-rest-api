@@ -14,6 +14,8 @@ import * as authServices from "../services/authServices.js";
 
 import gravatar from "gravatar";
 
+import Jimp from "jimp";
+
 const posterPath = path.resolve("public", "avatars");
 
 const { JWT_SECRET } = process.env;
@@ -27,7 +29,7 @@ const register = async (req, res) => {
 
     const avatarURL = await gravatar.url(
         email,
-        { s: "200", r: "x", d: "retro" },
+        { s: "250", r: "x", d: "retro" },
         true
     );
 
@@ -106,6 +108,16 @@ const udateAvt = async (req, res) => {
 
     await fs.rename(oldPath, newPath);
     const avatarURL = path.join("public", "avatars", filename);
+
+    Jimp.read(avatarURL)
+        .then((foto) => {
+            return foto
+                .resize(250, 250) 
+                .write(avatarURL);
+        })
+        .catch((err) => {
+            console.error(err);
+        });
 
     const newUser = await authServices.updateAvatar(_id, { avatarURL });
 

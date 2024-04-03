@@ -10,7 +10,7 @@ import authControllers from "../controllers/authControllers.js";
 
 import upload from "../middlewares/upload.js";
 
-const { register, login, logout, getCurrent, updateSub } = authControllers;
+const { register, login, logout, getCurrent, updateSub, udateAvt } = authControllers;
 
 const { subSchema, registerSchema, loginSchema } = authSchemas;
 
@@ -26,9 +26,9 @@ authRouter.get("/current", authenticate, getCurrent);
 
 authRouter.post("/logout", authenticate, logout);
 
-// upload.fields([{name: "poster", maxCount: 1}])
+//upload.fields([{name: "poster", maxCount: 1}])
 //upload.array("avatar", 8);
-// authRouter.post("/register", upload.single("avatar"), validateBody(registerSchema), register);
-authRouter.patch("/avatars", authenticate, validateBody(subSchema), updateSub);
+authRouter.patch("/avatars", authenticate, upload.single("avatar"), udateAvt);
+
 
 export default authRouter;

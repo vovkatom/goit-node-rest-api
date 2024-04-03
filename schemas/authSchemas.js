@@ -17,8 +17,13 @@ const subSchema = Joi.object({
     subscription: Joi.string().required(),
 });
 
+const avatarSchema = Joi.object({
+    subscription: Joi.string().required(),
+});
+
 export default {
     subSchema,
     loginSchema,
     registerSchema,
+    avatarSchema,
 };

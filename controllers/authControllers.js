@@ -29,7 +29,7 @@ const register = async (req, res) => {
 
     const avatarURL = await gravatar.url(
         email,
-        { s: "250", r: "x", d: "retro" },
+        { s: "250", r: "x", d: "monsterid" },
         true
     );
 

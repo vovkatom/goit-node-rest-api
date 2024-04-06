@@ -101,19 +101,21 @@ const updateSub = async (req, res) => {
 };
 
 const udateAvt = async (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+    }
+
     const { path: oldPath, filename } = req.file;
     const newPath = path.join(posterPath, filename);
 
     const { _id } = req.user;
 
     await fs.rename(oldPath, newPath);
-    const avatarURL = path.join("public", "avatars", filename);
+    const avatarURL = path.join("avatars", filename);
 
     Jimp.read(avatarURL)
         .then((foto) => {
-            return foto
-                .resize(250, 250) 
-                .write(avatarURL);
+            return foto.resize(250, 250).write(avatarURL);
         })
         .catch((err) => {
             console.error(err);

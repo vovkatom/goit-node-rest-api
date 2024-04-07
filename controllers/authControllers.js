@@ -110,16 +110,16 @@ const udateAvt = async (req, res) => {
 
     const { _id } = req.user;
 
-    await fs.rename(oldPath, newPath);
-    const avatarURL = path.join("avatars", filename);
-
-    Jimp.read(avatarURL)
+    await Jimp.read(oldPath)
         .then((foto) => {
-            return foto.resize(250, 250).write(avatarURL);
+            return foto.resize(250, 250).write(oldPath);
         })
         .catch((err) => {
             console.error(err);
         });
+
+    await fs.rename(oldPath, newPath);
+    const avatarURL = path.join("avatars", filename);
 
     const newUser = await authServices.updateAvatar(_id, { avatarURL });
 

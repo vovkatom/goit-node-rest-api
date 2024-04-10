@@ -21,3 +21,5 @@ export const updateStatusById = (filter, data) =>
 export const getContactByDetails = async ({ name, email, phone, owner }) => {
     return await Contact.findOne({ name, email, phone, owner });
 };
+
+export const countContacts = filter => Contact.countDocuments(filter);

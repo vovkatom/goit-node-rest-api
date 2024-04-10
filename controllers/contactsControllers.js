@@ -15,8 +15,14 @@ export const getAllContacts = async (req, res) => {
         limit,
     });
 
+    const total = await contactsService.countContacts({ owner });
+
     if (!contacts) throw HttpError(404);
-    res.json(contacts);
+
+    res.json({
+        contacts,
+        total,
+    });
 };
 
 export const getOneContact = async (req, res) => {

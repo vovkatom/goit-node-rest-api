@@ -49,8 +49,8 @@ const register = async (req, res) => {
     const veryfyEmail = {
         to: email,
         subject: "Verify email",
-        html: `<a target="_blank" href="${PROJECT_URL}/api/users/verify/${verificationToken}">Click verify email</a>`
-    }
+        html: `<a target="_blank" href="${PROJECT_URL}/api/users/verify/${verificationToken}">Click verify email</a>`,
+    };
 
     await sendEmail(veryfyEmail);
 
@@ -64,41 +64,46 @@ const register = async (req, res) => {
 };
 
 const verify = async (req, res) => {
-    const {verificationToken} = req.params;
+    const { verificationToken } = req.params;
     const user = await authServices.findUser({ verificationToken });
-    if(!user) {
+    if (!user) {
         throw HttpError(404, "User not found");
     }
 
-    await authServices.updateUser({_id: user._id}, {verify: true, verificationToken: null});
+    await authServices.updateUser(
+        { _id: user._id },
+        { verify: true, verificationToken: null }
+    );
 
     res.json({
-        message: "Verification successful"
-    })
-} 
+        message: "Verification successful",
+    });
+};
 
 const resendVerify = async (req, res) => {
-    const {email} = req.body;
+    const { email } = req.body;
+
     const user = await authServices.findUser({ email });
-    if(!user) {
+
+    if (!user) {
         throw HttpError(404, "Email not found");
     }
-    if(user.verify) {
-        throw HttpError(400, "Email already verify");
+    if (user.verify) {
+        throw HttpError(400, "Verification has already been passed");
     }
 
     const veryfyEmail = {
         to: email,
         subject: "Verify email",
-        html: `<a target="_blank" href="${PROJECT_URL}/api/users/verify/${user.verificationToken}">Click verify email</a>`
-    }
+        html: `<a target="_blank" href="${PROJECT_URL}/api/users/verify/${user.verificationToken}">Click verify email</a>`,
+    };
 
     await sendEmail(veryfyEmail);
 
     res.json({
-        message: "Verify email send again"
-    })
-}
+        message: "Verify email send again",
+    });
+};
 
 const login = async (req, res) => {
     const { email, password } = req.body;

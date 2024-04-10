@@ -10,8 +10,16 @@ import authControllers from "../controllers/authControllers.js";
 
 import upload from "../middlewares/upload.js";
 
-const { register, verify, resendVerify, login, logout, getCurrent, updateSub, udateAvt } =
-    authControllers;
+const {
+    register,
+    verify,
+    resendVerify,
+    login,
+    logout,
+    getCurrent,
+    updateSub,
+    udateAvt,
+} = authControllers;
 
 const { subSchema, registerSchema, loginSchema, emailSchema } = authSchemas;
 

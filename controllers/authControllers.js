@@ -16,9 +16,12 @@ import gravatar from "gravatar";
 
 import Jimp from "jimp";
 
+import { nanoid } from "nanoid";
+import sendEmail from "../helpers/sendEmail.js";
+
 const posterPath = path.resolve("public", "avatars");
 
-const { JWT_SECRET } = process.env;
+const { JWT_SECRET, PROJECT_URL } = process.env;
 
 const register = async (req, res) => {
     const { email, password } = req.body;
@@ -34,12 +37,22 @@ const register = async (req, res) => {
     );
 
     const hashPassword = await bcrypt.hash(password, 10);
+    const verificationToken = nanoid();
 
     const newUser = await authServices.register({
         ...req.body,
         avatarURL,
         password: hashPassword,
+        verificationToken,
     });
+
+    const veryfyEmail = {
+        to: email,
+        subject: "Verify email",
+        html: `<a target="_blank" href="${PROJECT_URL}/api/users/verify/${verificationToken}">Click verify email</a>`
+    }
+
+    await sendEmail(veryfyEmail);
 
     res.status(201).json({
         user: {
@@ -50,12 +63,53 @@ const register = async (req, res) => {
     });
 };
 
+const verify = async (req, res) => {
+    const {verificationToken} = req.params;
+    const user = await authServices.findUser({ verificationToken });
+    if(!user) {
+        throw HttpError(404, "User not found");
+    }
+
+    await authServices.updateUser({_id: user._id}, {verify: true, verificationToken: null});
+
+    res.json({
+        message: "Verification successful"
+    })
+} 
+
+const resendVerify = async (req, res) => {
+    const {email} = req.body;
+    const user = await authServices.findUser({ email });
+    if(!user) {
+        throw HttpError(404, "Email not found");
+    }
+    if(user.verify) {
+        throw HttpError(400, "Email already verify");
+    }
+
+    const veryfyEmail = {
+        to: email,
+        subject: "Verify email",
+        html: `<a target="_blank" href="${PROJECT_URL}/api/users/verify/${user.verificationToken}">Click verify email</a>`
+    }
+
+    await sendEmail(veryfyEmail);
+
+    res.json({
+        message: "Verify email send again"
+    })
+}
+
 const login = async (req, res) => {
     const { email, password } = req.body;
 
     const user = await authServices.findUser({ email });
     if (!user) {
         throw HttpError(401, "Email or password is wrong");
+    }
+
+    if (!user.verify) {
+        throw HttpError(401, "Email not verify");
     }
 
     const comparePassword = await authServices.validatePassword(
@@ -130,6 +184,8 @@ export default {
     login: ctrlWrapper(login),
     logout: ctrlWrapper(logout),
     register: ctrlWrapper(register),
+    verify: ctrlWrapper(verify),
+    resendVerify: ctrlWrapper(resendVerify),
     getCurrent: ctrlWrapper(getCurrent),
     updateSub: ctrlWrapper(updateSub),
     udateAvt: ctrlWrapper(udateAvt),
